@@ -1,33 +1,32 @@
 package ru.ideaplatform.calculations;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class ToText {
     public static void writeResultsToFile(Map<String, Integer> minFlightTimes, Map<String, Integer> maxFlightTimes, double priceDifference) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("билет.txt"))) {
-            writer.newLine();
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream("билет.txt"))) {
+            writer.write("\n");
             writer.write(logo() + ascii());
 
 
             writer.write("Минимальное время перелёта (час.):");
-            writer.newLine();
+            writer.write("\n");
             for (Map.Entry<String, Integer> entry : minFlightTimes.entrySet()) {
                 writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.newLine();
+                writer.write("\n");
             }
 
-            writer.newLine();
+            writer.write("\n");
             writer.write("Максимальное время перелёта (час.):");
-            writer.newLine();
+            writer.write("\n");
             for (Map.Entry<String, Integer> entry : maxFlightTimes.entrySet()) {
                 writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.newLine();
+                writer.write("\n");
             }
 
-            writer.newLine();
+            writer.write("\n");
             writer.write("Разница между средней ценой и медианой: " + priceDifference);
         } catch (IOException e) {
             e.printStackTrace();
