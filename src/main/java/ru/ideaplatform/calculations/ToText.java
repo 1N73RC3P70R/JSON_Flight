@@ -1,37 +1,45 @@
 package ru.ideaplatform.calculations;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 
 public class ToText {
-    public static void writeResultsToFile(Map<String, Integer> minFlightTimes, Map<String, Integer> maxFlightTimes, double priceDifference) {
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream("билет.txt"))) {
-            writer.write("\n");
-            writer.write(logo() + ascii());
+    public static void toFile(Map<String, Duration> minFlightTimes, Map<String, Duration> maxFlightTimes, double priceDifference) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("билет.txt"))) {
+            writer.write(logo());
+            writer.write(ascii());
 
-
-            writer.write("Минимальное время перелёта (час.):");
-            writer.write("\n");
-            for (Map.Entry<String, Integer> entry : minFlightTimes.entrySet()) {
-                writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.write("\n");
+            writer.write("Минимальное время полета по авиакомпаниям:\n");
+            for (Map.Entry<String, Duration> entry : minFlightTimes.entrySet()) {
+                String carrier = entry.getKey();
+                Duration duration = entry.getValue();
+                writer.write(carrier + ": " + formatDuration(duration) + "\n");
             }
 
-            writer.write("\n");
-            writer.write("Максимальное время перелёта (час.):");
-            writer.write("\n");
-            for (Map.Entry<String, Integer> entry : maxFlightTimes.entrySet()) {
-                writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.write("\n");
+            writer.write("\nМаксимальное время полета по авиакомпаниям:\n");
+            for (Map.Entry<String, Duration> entry : maxFlightTimes.entrySet()) {
+                String carrier = entry.getKey();
+                Duration duration = entry.getValue();
+                writer.write(carrier + ": " + formatDuration(duration) + "\n");
             }
 
-            writer.write("\n");
-            writer.write("Разница между средней ценой и медианой: " + priceDifference);
+            writer.write("\nРазница в цене: " + priceDifference);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private static String formatDuration(Duration duration) {
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+        return String.format("%02d:%02d", hours, minutes);
+    }
+
+
+
+
+
     public static String logo(){
         return """
                                                                                                \s

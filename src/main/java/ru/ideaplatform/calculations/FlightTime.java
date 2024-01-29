@@ -4,52 +4,53 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public class FlightTime {
-    Map<String, Integer> minFlightTime = new HashMap<String, Integer>();
-    Map<String, Integer> maxFlightTime = new HashMap<String, Integer>();
+    Map<String, Duration> minFlightTime = new HashMap<>();
+    Map<String, Duration> maxFlightTime = new HashMap<>();
 
-    public void flightTime(JsonArray ticketsArray) {
+    public void flightTime(JsonArray ticketsArray, String cityOne, String cityTwo) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm", new Locale("ru", "RU"));
 
         for (JsonElement ticketsElement : ticketsArray) {
-
             JsonObject ticketObject = ticketsElement.getAsJsonObject();
-            String carrier = ticketObject.get("carrier").getAsString();
-            String stops = ticketObject.get("stops").getAsString();
-            int time = (int) flightTimeCalculation(ticketObject);
 
-            if (!minFlightTime.containsKey(carrier) || time < minFlightTime.get(carrier)) {
-                minFlightTime.put(carrier, time);
-            }
-            if (!maxFlightTime.containsKey(carrier) || time > maxFlightTime.get(carrier)) {
-                maxFlightTime.put(carrier, time);
+            String departureCity = ticketObject.get("origin_name").getAsString();
+            String arrivalCity = ticketObject.get("destination_name").getAsString();
+
+            if ((departureCity.equals(cityOne) && arrivalCity.equals(cityTwo)) ||
+                    (departureCity.equals(cityTwo) && arrivalCity.equals(cityOne))) {
+
+                String carrier = ticketObject.get("carrier").getAsString();
+                String departureTimeString = ticketObject.get("departure_time").getAsString();
+                String arrivalTimeString = ticketObject.get("arrival_time").getAsString();
+
+                LocalTime departureTime = LocalTime.parse(departureTimeString, formatter);
+                LocalTime arrivalTime = LocalTime.parse(arrivalTimeString, formatter);
+
+                Duration duration = Duration.between(departureTime, arrivalTime);
+
+                if (!minFlightTime.containsKey(carrier) || duration.compareTo(minFlightTime.get(carrier)) < 0) {
+                    minFlightTime.put(carrier, duration);
+                }
+                if (!maxFlightTime.containsKey(carrier) || duration.compareTo(maxFlightTime.get(carrier)) > 0) {
+                    maxFlightTime.put(carrier, duration);
+                }
             }
         }
     }
 
-    static double flightTimeCalculation(JsonObject ticketsObject) {
-        SimpleDateFormat date = new SimpleDateFormat("dd.MM.yy HH:mm", new Locale("ru", "RU"));
-
-        try {
-            Date departureTime = date.parse(ticketsObject.get("departure_date").getAsString() + " " + ticketsObject.get("departure_time").getAsString());
-            Date arrivalTime = date.parse(ticketsObject.get("arrival_date").getAsString() + " " + ticketsObject.get("arrival_time").getAsString());
-            double result = arrivalTime.getTime() - departureTime.getTime();
-            return (result / (60 * 60 * 1000));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public Map<String, Integer> getMinFlightTime() {
+    public Map<String, Duration> getMinFlightTime() {
         return minFlightTime;
     }
 
-    public Map<String, Integer> getMaxFlightTime() {
+    public Map<String, Duration> getMaxFlightTime() {
         return maxFlightTime;
     }
 }
