@@ -1,29 +1,35 @@
 package ru.ideaplatform.calculations;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class ToText {
-    public static void writeResultsToFile(Map<String, Integer> minFlightTimes, Map<String, Integer> maxFlightTimes, double priceDifference) {
+    public static void toFile(Map<String, String> minFlightTimes, Map<String, String> maxFlightTimes, double priceDifference) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream("билет.txt"))) {
             writer.write("\n");
             writer.write(logo() + ascii());
 
-
             writer.write("Минимальное время перелёта (час.):");
             writer.write("\n");
-            for (Map.Entry<String, Integer> entry : minFlightTimes.entrySet()) {
-                writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.write("\n");
+            for (Map.Entry<String, String> entry : minFlightTimes.entrySet()) {
+                try {
+                    writer.write(entry.getKey() + ": " + entry.getValue());
+                    writer.write("\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             writer.write("\n");
             writer.write("Максимальное время перелёта (час.):");
             writer.write("\n");
-            for (Map.Entry<String, Integer> entry : maxFlightTimes.entrySet()) {
-                writer.write(entry.getKey() + ": " + entry.getValue());
-                writer.write("\n");
+            for (Map.Entry<String, String> entry : maxFlightTimes.entrySet()) {
+                try {
+                    writer.write(entry.getKey() + ": " + entry.getValue());
+                    writer.write("\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             writer.write("\n");
@@ -32,6 +38,12 @@ public class ToText {
             e.printStackTrace();
         }
     }
+
+
+
+
+
+
     public static String logo(){
         return """
                                                                                                \s

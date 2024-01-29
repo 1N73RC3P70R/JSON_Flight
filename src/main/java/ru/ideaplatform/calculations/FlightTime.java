@@ -12,23 +12,33 @@ import java.util.Locale;
 import java.util.Map;
 
 public class FlightTime {
-    Map<String, Integer> minFlightTime = new HashMap<String, Integer>();
-    Map<String, Integer> maxFlightTime = new HashMap<String, Integer>();
+    Map<String, String> minFlightTime = new HashMap<>();
+    Map<String, String> maxFlightTime = new HashMap<>();
 
-    public void flightTime(JsonArray ticketsArray) {
-
+    public void flightTime(JsonArray ticketsArray, String cityOne, String cityTwo) {
         for (JsonElement ticketsElement : ticketsArray) {
-
             JsonObject ticketObject = ticketsElement.getAsJsonObject();
-            String carrier = ticketObject.get("carrier").getAsString();
-            String stops = ticketObject.get("stops").getAsString();
-            int time = (int) flightTimeCalculation(ticketObject);
 
-            if (!minFlightTime.containsKey(carrier) || time < minFlightTime.get(carrier)) {
-                minFlightTime.put(carrier, time);
-            }
-            if (!maxFlightTime.containsKey(carrier) || time > maxFlightTime.get(carrier)) {
-                maxFlightTime.put(carrier, time);
+            String departureCity = ticketObject.get("origin_name").getAsString();
+            String arrivalCity = ticketObject.get("destination_name").getAsString();
+
+            if ((departureCity.equals(cityOne) && arrivalCity.equals(cityTwo)) ||
+                    (departureCity.equals(cityTwo) && arrivalCity.equals(cityOne))) {
+
+                String carrier = ticketObject.get("carrier").getAsString();
+                double time = flightTimeCalculation(ticketObject);
+
+                int hours = (int) time;
+                int minutes = (int) ((time - hours) * 60);
+
+                String formattedTime = String.format("%d ч %02d мин", hours, minutes);
+
+                if (!minFlightTime.containsKey(carrier) || formattedTime.compareTo(minFlightTime.get(carrier)) < 0) {
+                    minFlightTime.put(carrier, formattedTime);
+                }
+                if (!maxFlightTime.containsKey(carrier) || formattedTime.compareTo(maxFlightTime.get(carrier)) > 0) {
+                    maxFlightTime.put(carrier, formattedTime);
+                }
             }
         }
     }
@@ -40,16 +50,17 @@ public class FlightTime {
             Date departureTime = date.parse(ticketsObject.get("departure_date").getAsString() + " " + ticketsObject.get("departure_time").getAsString());
             Date arrivalTime = date.parse(ticketsObject.get("arrival_date").getAsString() + " " + ticketsObject.get("arrival_time").getAsString());
             double result = arrivalTime.getTime() - departureTime.getTime();
-            return (result / (60 * 60 * 1000));
+            return result / (60.0 * 60.0 * 1000.0);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
-    public Map<String, Integer> getMinFlightTime() {
+
+    public Map<String, String> getMinFlightTime() {
         return minFlightTime;
     }
 
-    public Map<String, Integer> getMaxFlightTime() {
+    public Map<String, String> getMaxFlightTime() {
         return maxFlightTime;
     }
 }
