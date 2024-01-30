@@ -5,7 +5,7 @@ import java.time.Duration;
 import java.util.Map;
 
 public class ToText {
-    public static void toFile(Map<String, Duration> minFlightTimes, Map<String, Duration> maxFlightTimes, double priceDifference) {
+    public static void toFile(Map<String, Duration> minFlightTimes, Map<String, Duration> maxFlightTimes, double priceDifference, double averagePrice, double medianPrice) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("билет.txt"))) {
             writer.write(logo());
             writer.write(ascii());
@@ -25,6 +25,7 @@ public class ToText {
             }
 
             writer.write("\nРазница в цене: " + priceDifference);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,10 +38,7 @@ public class ToText {
     }
 
 
-
-
-
-    public static String logo(){
+    public static String logo() {
         return """
                                                                                                \s
                                                                                                \s
@@ -74,9 +72,10 @@ public class ToText {
                                                                                                \s
                                                                                                \s
                                                                                                \s
-                """;}
+                """;
+    }
 
-  public static String ascii(){
+    public static String ascii() {
         return """
                  _____ _____  ______                 _____  _            _______ ______ ____  _____  __  __\s
                 |_   _|  __ \\|  ____|   /\\          |  __ \\| |        /\\|__   __|  ____/ __ \\|  __ \\|  \\/  |

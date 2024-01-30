@@ -32,9 +32,11 @@ public class Main {
                 prices.add(ticketElement.getAsJsonObject().get("price").getAsInt());
             }
 
-            double priceDifference = FlightPrice.flightPrice(prices);
+            double priceDifference = FlightPrice.flightPrice("tickets.json");
+            double averagePrice = FlightPrice.calculateAveragePrice(prices);
+            double medianPrice = FlightPrice.calculateMedianPriceVladivostok(prices);
 
-            toFile(minFlightTimes, maxFlightTimes, priceDifference);
+            toFile(minFlightTimes, maxFlightTimes, priceDifference, averagePrice, medianPrice);
 
             System.out.println("Результаты находятся в \"билет.txt\"");
 
